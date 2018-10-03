@@ -1,0 +1,4 @@
+#!C:\Users\tug83326\PycharmProjects\DraftKingsShowdown\venv\Scripts\python.exe
+
+import nflgame.update_players
+nflgame.update_players.run()
