@@ -70,31 +70,55 @@ def isCloseEnough(homeScore, awayScore, line, ou):
     return False
 
 def getGameByEid(eid):
-    return nflgame.game.Game(id)
+    return nflgame.game.Game(eid)
 
-my_game_ids = []
+def displayPointTotalsByYearAndWeek(year, week):
+    list_fplayers = []
 
-games = nflgame.games(2013, week=[1,2,3,4,5,6,7])
-for game in games:
-    if isCloseEnough(homeScore=game.score_home, awayScore=game.score_away, line=10, ou=51):
-        my_game_ids.append(game.eid)
-for id in my_game_ids:
-    print '%s' % getGameByEid(id).home
-stats = nflgame.combine_game_stats(games)
-for s in stats.sort('passing_yds').limit(5):
-    msg = '%s %d'
-    print msg % (s, s.passing_yds)
+    games = nflgame.games(2018, week=1)
+    players = nflgame.combine_game_stats(games)
+    for p in players:
+        my_fplayer = FantasyPlayer(p)
+        list_fplayers.append(my_fplayer)
 
-list_fplayers = []
+    newlist = sorted(list_fplayers, key=lambda x: x.points)
 
-games = nflgame.games(2018, week=1)
-players = nflgame.combine_game_stats(games)
-for p in players:
-    my_fplayer = FantasyPlayer(p)
-    list_fplayers.append(my_fplayer)
+    for fplayer in newlist:
+        msg = '%s %d'
+        print msg % (fplayer.player, fplayer.points)
 
-newlist = sorted(list_fplayers, key=lambda x: FantasyPlayer.points)
+def displayPointTotalsByGame(eid):
+    list_fplayers = []
 
-for fplayer in newlist:
-    msg = '%s %d'
-    print msg % (fplayer.player, fplayer.points)
+    game = getGameByEid(eid)
+    players = game.players
+    print '%s %d @ %d %s' % (game.away, game.score_away, game.score_home, game.home)
+    for p in players:
+        my_fplayer = FantasyPlayer(p)
+        list_fplayers.append(my_fplayer)
+
+    newlist = sorted(list_fplayers, key=lambda x: x.points, reverse=True)
+
+    for fplayer in newlist[0:2]:
+        msg = '%s %d'
+        print msg % (fplayer.player, fplayer.points)
+
+def displayPointTotalsByVegas(line, ou):
+    start = 2009
+    end = 2017
+
+    weeks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+
+    my_game_ids = []
+
+    for i in range(start, end):
+        games = nflgame.games(i, week=weeks)
+        for game in games:
+            if isCloseEnough(homeScore=game.score_home, awayScore=game.score_away, line=10, ou=51):
+                my_game_ids.append(game.eid)
+
+    for id in my_game_ids:
+        displayPointTotalsByGame(id)
+
+displayPointTotalsByYearAndWeek(2018, 1)
+displayPointTotalsByVegas(51, 10)
